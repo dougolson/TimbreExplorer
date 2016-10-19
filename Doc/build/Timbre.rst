@@ -1,0 +1,30 @@
+Timbre package
+==============
+
+Submodules
+----------
+
+Timbre.generators module
+------------------------
+
+.. automodule:: Timbre.generators
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Timbre.timbre module
+--------------------
+
+.. automodule:: Timbre.timbre
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: Timbre
+    :members:
+    :undoc-members:
+    :show-inheritance:
