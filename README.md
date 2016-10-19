@@ -2,7 +2,7 @@
 # Timbre Explorer
 
 The Timbre Explorer module creates Timbre objects for the investigation of the dissonance and consonance properties of musical timbres. The disMeasure() function is not mine - it is a Python translation of [William Sethares’s matlab and C code](http://sethares.engr.wisc.edu/comprog.html). I have added functions to do plots of various kinds and to generate .wav files so you can hear the timbres and their dissonance / consonance patterns. Requires Matplotlib, Numpy and Scipy.
-
+further documentation is ![here](/Doc/build/html/index.html)
 
 ```python
 import Timbre
