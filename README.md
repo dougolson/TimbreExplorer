@@ -1,5 +1,4 @@
 
-
 # Timbre Explorer
 
 The Timbre Explorer module creates Timbre objects for the investigation of the dissonance and consonance properties of musical timbres. The disMeasure() function is not mine - it is a Python translation of [William Sethares’s matlab and C code](http://sethares.engr.wisc.edu/comprog.html). I have added functions to do plots of various kinds and to generate .wav files so you can hear the timbres and their dissonance / consonance patterns. Requires Matplotlib, Numpy and Scipy.
@@ -68,7 +67,7 @@ even.disPlot()
 ```
 
 
-![png](https://github.com/dougolson/TimbreExplorer/tree/master/Doc/overview/output_9_0.png)
+![png](/Doc/overview/output_9_0.png)
 
 
 Note the flat third (interval 4) 
@@ -79,7 +78,7 @@ odd.disPlot()
 ```
 
 
-![png](https://github.com/dougolson/TimbreExplorer/tree/master/Doc/overview/output_11_0.png)
+![png](/Doc/overview/output_11_0.png)
 
 
 
@@ -88,7 +87,7 @@ beam.disPlot()
 ```
 
 
-![png](https://github.com/dougolson/TimbreExplorer/tree/master/Doc/overview/output_12_0.png)
+![png](/Doc/overview/output_12_0.png)
 
 
 Note the stetched partials of the vibrating beam timbre, especially the sixth and octave
@@ -99,7 +98,7 @@ Timbre.disPlotMultiple(even, odd, beam)
 ```
 
 
-![png](https://github.com/dougolson/TimbreExplorer/tree/master/Doc/overview/output_14_0.png)
+![png](/Doc/overview/output_14_0.png)
 
 
 
@@ -117,7 +116,7 @@ square.wavePlot()
 ```
 
 
-![png](https://github.com/dougolson/TimbreExplorer/tree/master/Doc/overview/output_16_0.png)
+![png](/Doc/overview/output_16_0.png)
 
 
 
@@ -126,7 +125,7 @@ square.partialsPlot()
 ```
 
 
-![png](https://github.com/dougolson/TimbreExplorer/tree/master/Doc/overview/output_17_0.png)
+![png](/Doc/overview/output_17_0.png)
 
 
 
@@ -136,7 +135,7 @@ square.disPlot()
 ```
 
 
-![png](https://github.com/dougolson/TimbreExplorer/tree/master/Doc/overview/output_18_0.png)
+![png](/Doc/overview/output_18_0.png)
 
 
 
