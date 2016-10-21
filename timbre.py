@@ -169,24 +169,26 @@ class Timbre(object):
         """
         self.audioGenPath()
         sampleInc = 1.0/44100
-        if hasattr(self, 'env'):
-            length = len(self.env)/44100.0
+        # if hasattr(self, 'env'): # Used with fft.py
+#             length = len(self.env)/44100.0
         x = np.arange(0,length, sampleInc)
         wavData = np.zeros(len(x))
         for i,(freq,amp) in enumerate(zip(self.freqs,self.amps)):
-            if hasattr(self, 'phase'):
-                y = amp*np.sin(2*np.pi*freq*x + self.phase[i])
-            else:
-                y = amp*np.sin(2*np.pi*freq*x)
+            # if hasattr(self, 'phase'): # Used with fft.py
+            #     y = amp*np.sin(2*np.pi*freq*x + self.phase[i])
+            # else:
+                # y = amp*np.sin(2*np.pi*freq*x)
+            y = amp*np.sin(2*np.pi*freq*x)
             wavData = np.sum([wavData,y], axis = 0)
         mx = 1.1*(max(abs(wavData)))
         wavData = np.asarray(wavData)
         wavData = wavData/mx
-        if hasattr(self, 'env'):
-            wavData = self.env * wavData
+        # if hasattr(self, 'env'): used with fft.py
+#             wavData = self.env * wavData
         wavData = np.asarray(32000*wavData, dtype = np.int16)
-        self.wavData = wavData
-        write('TimbreAudio/%dHz_%dpartials_%s.wav' % (self.f_0, self.numPartials, self.harmonics ), 44100.0, self.wavData)
+        # self.wavData = wavData
+        write('TimbreAudio/%dHz_%dpartials_%s.wav' % (self.f_0, self.numPartials, self.harmonics ), 44100.0, wavData)
+        print "File written to TimbreAudio folder"
 
 
     def timbreSweep(self, length = 90):
@@ -216,22 +218,27 @@ class Timbre(object):
         sweepData = np.asarray(sweepData)
         sweepData = sweepData/mx
         sweepData = np.asarray(32000*sweepData, dtype = np.int16)
-        self.sweepData = sweepData
         write('TimbreAudio/%dHz_%dSec_OctSweep%dpartials_%s.wav' % (self.f_0, length, self.numPartials, self.harmonics ), 44100.0, sweepData)
+        print "File written to TimbreAudio folder"
 
 
 
-    def writeChord(self,chordNotes = [0,4,7], length = 5, verbose = False):
+    def writeChord(self, verbose = False):  
         """
-        Writes a chord with the selected half steps at the timbre's nearest consonant pitches.
+        Writes a chord with the selected half steps at the timbre's nearest consonant pitches. Prompts user for desired half steps.
         """
         self.audioGenPath()
+        
         consRatios = [1] # initialize array
-        if not hasattr(self,'consonances'):
-            self.consFreqs()
-            consRatios[1:] = self.consonances/self.f_0
+        self.consFreqs()
+        consRatios[1:] = self.consonances/self.f_0
+            
         EqTemp_Ratios = [(2**(1./12))**x for x in range(13)] # array of EQ Temp ratios, duh
+        
+        print "This timbre has %d consonances" % len(consRatios)
+        
         mins = []
+        
         for i in range(len(consRatios)): # for each consonant frequency
             tmp = []
             for j in range(len(EqTemp_Ratios)): # for each 12TET step
@@ -243,10 +250,34 @@ class Timbre(object):
                 mins.append(tmp.index(min(tmp))+1) # if it already is in mins, add one (i.e. make it the next half step up)
                 # print 'consRatios[%d] moved +1' % i
         # mins contains the indeces of the consFreqs, which corresponds to the interval, i.e. 3 is a minor 3rd, 7 is a 5th, etc
+        ########
+        ########
+        while True:
+            length = raw_input("Enter file length in seconds: ")
+            try:
+                length = (int(length))
+                break
+            except ValueError:
+                print "Must be an integer"
+                
+        chordNotes = []
+        while True:
+            noteChoice = raw_input("Consonant half steps are %s. Enter the values you want; Press Enter with no value when done: " % ', '.join([str(m) for m in mins]))
+            try:
+                chordNotes.append(int(noteChoice))
+            except ValueError:
+                if noteChoice != '':
+                    print "Value must be an integer"
+                else:
+                    break
+        ########
+        ########
         sampleInc = 1.0/44100
         x = np.arange(0,length, sampleInc)
         wavData = np.zeros(len(x))
         noteDict = dict(zip(mins, consRatios))
+        ########
+        ########
         if verbose:
             steps_12TET = [self.f_0*(2**i) for i in np.arange(0,self.width + 1./12,1./12)] # 12 TET steps
             print 'steps_12TET:\n', steps_12TET , '\n'
@@ -256,31 +287,52 @@ class Timbre(object):
             print '\n consRatios: ', consRatios
             print '\n mins: ', mins
             print '\n noteDict: ', noteDict
+        ########
+        ########
         for freq,amp in zip(self.freqs,self.amps):
             for c in chordNotes:
                 y = amp*np.sin(2*np.pi*noteDict[c]*freq*x)
                 wavData = np.sum([wavData,y], axis = 0)
+        
         mx = 1.1*(max(abs(wavData)))
         wavData = np.asarray(wavData)
         wavData = wavData/mx
         wavData = np.asarray(32000*wavData, dtype = np.int16)
         write('TimbreAudio/%dHzFund_%s_%sChord.wav' % (self.f_0, ''.join([str(note) for note in chordNotes]), self.harmonics), 44100.0, wavData)
+        self.consonances = []
         print "File written to TimbreAudio folder"
 
 
-    def write12TETChord(self,chordNotes = [0,4,7], length = 5, verbose = False):
+    def write12TETChord(self, length = 5): # , chordNotes = [0,4,7]
         """
-        Writes an equal tempered chord with the selected half steps.
+        Writes an equal tempered chord with the selected half steps. Prompts user for desired half steps.
         """
         self.audioGenPath()
-        EqTemp_Ratios = [(2**(1./12))**x for x in range(13)]
+        EqTemp_Ratios = [(2**(1.0 / 12))**x for x in range(13)]
+        while True:
+            length = raw_input("Enter file length in seconds: ")
+            try:
+                length = (int(length))
+                break
+            except ValueError:
+                print "Must be an integer"
+        chordNotes = []
+        while True:
+            noteChoice = raw_input("Enter the half step values you want; Press Enter with no value when done: ")
+            try:
+                chordNotes.append(int(noteChoice))
+            except ValueError:
+                if noteChoice != '':
+                    print "Value must be an integer"
+                else:
+                    break
         sampleInc = 1.0/44100
         x = np.arange(0,length, sampleInc)
         wavData = np.zeros(len(x))
         noteDict = dict(zip(range(0,len(EqTemp_Ratios)), EqTemp_Ratios))
         for freq,amp in zip(self.freqs,self.amps):
             for c in chordNotes:
-                y = amp*np.sin(2*np.pi*noteDict[c]*freq*x)
+                y = amp*np.sin(2 * np.pi * noteDict[c] * freq * x)
                 wavData = np.sum([wavData,y], axis = 0)
         mx = 1.1*(max(abs(wavData)))
         wavData = np.asarray(wavData)
@@ -288,26 +340,66 @@ class Timbre(object):
         wavData = np.asarray(32000*wavData, dtype = np.int16)
         write('TimbreAudio/%dHzFund_%s_%s_EqTemp_Chord.wav' % (self.f_0, ''.join([str(note) for note in chordNotes]), self.harmonics), 44100.0, wavData)
         print "File written to TimbreAudio folder"
+        
+        
+    # def writeConsFreqs(self, length = 5):
+    #     """Generates audio data and a .wav file of a timbre.
+    #            * Default length 5 seconds.
+    #            * files in TimbreAudio in cwd
+    #     """
+    #     self.audioGenPath()
+    #     sampleInc = 1.0/44100
+    #     consRatios = [1] # initialize array
+    #     self.consFreqs()
+    #     consRatios[1:] = self.consonances/self.f_0
+    #
+    #     EqTemp_Ratios = [(2**(1./12))**x for x in range(13)] # array of EQ Temp ratios, duh
+    #
+    #     print "This timbre has %d consonances" % len(consRatios)
+    #
+    #     mins = []
+    #     for i in range(len(consRatios)): # for each consonant frequency
+    #         tmp = []
+    #         for j in range(len(EqTemp_Ratios)): # for each 12TET step
+    #             tmp.append(abs(consRatios[i] - EqTemp_Ratios[j])) # append tmp with the difference between ConsFreq and Step
+    #         if tmp.index(min(tmp)) not in mins: # if the index isn't already in mins
+    #             mins.append(tmp.index(min(tmp))) # add the min value for each i pass to the mins array
+    #             # print 'consRatios[%d] not moved' % i
+    #         else:
+    #             mins.append(tmp.index(min(tmp))+1) # if it already is in mins, add one (i.e. make it the next half step up)
+    #     x = np.arange(0,length, sampleInc)
+    #     wavData = np.zeros(len(x))
+    #
+    #     for i,(freq,amp) in enumerate(zip(self.freqs,self.amps)):
+    #         y = amp*np.sin(2*np.pi*freq*x)
+    #         wavData = np.sum([wavData,y], axis = 0)
+    #
+    #     mx = 1.1*(max(abs(wavData)))
+    #     wavData = np.asarray(wavData)
+    #     wavData = wavData/mx
+    #     if hasattr(self, 'env'):
+    #         wavData = self.env * wavData
+    #     wavData = np.asarray(32000*wavData, dtype = np.int16)
+    #     write('TimbreAudio/%dHz_%dpartials_%s.wav' % (self.f_0, self.numPartials, self.harmonics ), 44100.0, wavData)
+    #     print "File written to TimbreAudio folder"
 
 
 if __name__ == '__main__':
     from generators import *
-    if not os.path.exists('poop'):
-        os.makedirs('poop')
     # # print os.path.dirname(os.path.realpath(__file__))
     # f = [260.44805563090279, 520.35237836904787, 778.62550242892019, 1039.6172909525806, 1300.609079476241, 1558.3384706433555, 1819.330259167016, 2078.6908490124033]
     # a = [0.16724917882935164, 1.0, 0.05825872786812774, 0.019126990466560075, 0.097543923859240947, 0.014853679015129385, 0.013322988640851378, 0.012819862560537666]
     # f,a = sfft.simple_fft('./samples/Bassoon.ff.C4.wav', mkPlot = True)
     # foo = Custom(f,a)
     # print 'len(f) = ', len(f)
-    # foo = Odd()
+    foo = Even()
     # # foo.timbreSweep(length = 60)
     # foo.disMeasure(octaves = 1)
     # # foo.timbreGen()
     
     # # foo.consDisFreqs()
     # foo.consFreqs(makePlot = True)
-    # foo.writeChord(chordNotes = [0,4,7], length = 5, verbose = True)
+    foo.writeChord(length = 5, verbose = True)
     # # foo.partialsPlot()
     # foo.wavePlot()
     # foo.disPlot()

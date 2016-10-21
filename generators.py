@@ -98,7 +98,7 @@ class Custom(Timbre):
             * amps_array: an array of amplitides
             * freq_array and amps_array must have the same length
     """
-    def __init__(self, freq_array, amps_array, phaseArray, env_array):
+    def __init__(self, freq_array, amps_array): #phaseArray, env_array - used with fft.py
         f_0 = min(freq_array)
         numPartials = len(freq_array)
         Timbre.__init__(self, f_0, numPartials)
@@ -106,9 +106,9 @@ class Custom(Timbre):
         self.numPartials = numPartials
         self.freqs = freq_array
         self.amps = amps_array
-        self.phase = phaseArray
-        self.harmonics = 'custom harmonics'
-        self.env = env_array
+        # self.phase = phaseArray
+        self.harmonics = 'Custom Harmonics'
+        # self.env = env_array
         
         print "Timbre successfully initialized with custom partials"
 
