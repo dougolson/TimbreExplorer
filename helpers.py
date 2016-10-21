@@ -4,17 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 __all__ = ['plotMultiple', 'disPlotMultiple']
 
-def plotMultiple(*args):
-    """Plots the waveforms of multiple Timbre objects
-    
-        Usage:
-    
-            >>> plotMultiple(foo, bar, baz)
-    """
-    for arg in args:
-        plt.plot(arg)
-    plt.show()
-
 
 def disPlotMultiple(*args):
     """Plots the dissonance curves for multiple Timbre objects. Uses the non-normalized dissonance arrays to allow for comparison 

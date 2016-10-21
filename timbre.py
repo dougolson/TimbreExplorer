@@ -36,7 +36,7 @@ class Timbre(object):
         C2 = -5
         A1 = -3.51
         A2 = -5.75
-        inc = self.increment# step increment for x values
+        inc = self.increment # step increment for x values
         frequencies = self.freqs
         amplitudes = self.amps
         dissonances = [] # empty array for i loop
@@ -123,27 +123,28 @@ class Timbre(object):
         plt.show()
         
     def consDisFreqs(self, makePlot = False):
-        """Generates a list of the consonances (minima on the dissonance plot) for a given timbre. The consonances are used by consFreqs and writeChord. Optionally plots a bar graph showing the peak dissonant an consonant frequencies for a given Timbre object"""
-        try:
-            x = np.asarray(self.normalizedDissonances)
-            dis = argrelextrema(x, np.greater)
-            self.dissonances = [self.f_0*(1 + d*self.increment) for d in dis]
-            con = argrelextrema(x, np.less)
-            self.dissonances = self.dissonances[0]
-            self.consonances = [self.f_0*(1 + c*self.increment) for c in con]
-            self.consonances = self.consonances[0]
-            if makePlot:
-                hDis = np.ones(len(self.dissonances))
-                hCon = np.ones(len(self.consonances))
-                ticks = np.append(self.consonances, self.dissonances)
-                plt.bar(np.round(self.consonances,2),hCon,max(ticks)/200.0, color = 'b', align = 'center', label = 'Consonant')
-                plt.bar(np.round(self.dissonances,2),hDis,max(ticks)/200.0, color = 'r', align='center', label = 'Dissonant')
-                plt.xticks(ticks, rotation = 90, fontsize = 10)
-                leg = plt.legend(fancybox=True)
-                leg.get_frame().set_alpha(0.75)
-                plt.show()
-        except Exception:
-            print "Must run disMeasure first"
+        """
+        Generates a list of the consonances (minima on the dissonance plot) for a given timbre. The consonances are used by consFreqs and writeChord. Optionally plots a bar graph                  showing the peak dissonant an consonant frequencies for a given Timbre object
+        """
+        if not hasattr(self,'normalizedDissonances'):
+            self.disMeasure()
+        x = np.asarray(self.normalizedDissonances)
+        dis = argrelextrema(x, np.greater)
+        self.dissonances = [self.f_0*(1 + d*self.increment) for d in dis]
+        con = argrelextrema(x, np.less)
+        self.dissonances = self.dissonances[0]
+        self.consonances = [self.f_0*(1 + c*self.increment) for c in con]
+        self.consonances = self.consonances[0]
+        if makePlot:
+            hDis = np.ones(len(self.dissonances))
+            hCon = np.ones(len(self.consonances))
+            ticks = np.append(self.consonances, self.dissonances)
+            plt.bar(np.round(self.consonances,2),hCon,max(ticks)/200.0, color = 'b', align = 'center', label = 'Consonant')
+            plt.bar(np.round(self.dissonances,2),hDis,max(ticks)/200.0, color = 'r', align='center', label = 'Dissonant')
+            plt.xticks(ticks, rotation = 90, fontsize = 10)
+            leg = plt.legend(fancybox=True)
+            leg.get_frame().set_alpha(0.75)
+            plt.show()
 
     def consFreqs(self, makePlot = False):
         """Generates an array of consonant frequencies for a given Timbre. Optionally plots a bar graph showing the peak dissonant an consonant frequencies for a given Timbre object"""
@@ -183,10 +184,9 @@ class Timbre(object):
         mx = 1.1*(max(abs(wavData)))
         wavData = np.asarray(wavData)
         wavData = wavData/mx
-        # if hasattr(self, 'env'): used with fft.py
+        # if hasattr(self, 'env'): # used with fft.py
 #             wavData = self.env * wavData
         wavData = np.asarray(32000*wavData, dtype = np.int16)
-        # self.wavData = wavData
         write('TimbreAudio/%dHz_%dpartials_%s.wav' % (self.f_0, self.numPartials, self.harmonics ), 44100.0, wavData)
         print "File written to TimbreAudio folder"
 
@@ -199,15 +199,11 @@ class Timbre(object):
         self.audioGenPath()
         sampleInc = 1.0/44100
         f_Start, f_Stop = self.freqs, [2.2*f for f in self.freqs] # 2 arrays, one of initial and one of final partials 
-        # print 'f_start: ', f_Start,' f_stop: ', f_Stop
         times = np.arange(0, length, sampleInc) # array of chosen length at 44.1 kHz sample rate
         ramp = 1.*times/length # linear ramp 
         rampArray = [f0*(1-ramp) + f1*ramp for f0,f1 in zip(f_Start, f_Stop)] #generates an list of arrays, one for each frequency
-        # print 'rampArray: ', rampArray
-        # print 'self.amps:', self.amps
         sweepData = np.zeros(len(times))
         phaseCorrect = [np.add.accumulate(times*np.concatenate((np.zeros(1), 2*np.pi*(x[:-1]-x[1:])))) for x in rampArray]
-        # print 'phaseCorrect: ', phaseCorrect
         for freq,amp in zip(self.freqs,self.amps): # Constant frequency
             y = amp*np.sin(2*np.pi*freq*times)
             sweepData = np.sum([sweepData,y], axis = 0)
@@ -225,32 +221,24 @@ class Timbre(object):
 
     def writeChord(self, verbose = False):  
         """
-        Writes a chord with the selected half steps at the timbre's nearest consonant pitches. Prompts user for desired half steps.
+        Writes a chord with the selected half steps at the timbre's nearest consonant pitches. Prompts user for length and desired half steps.
         """
         self.audioGenPath()
-        
         consRatios = [1] # initialize array
         self.consFreqs()
         consRatios[1:] = self.consonances/self.f_0
-            
         EqTemp_Ratios = [(2**(1./12))**x for x in range(13)] # array of EQ Temp ratios, duh
-        
         print "This timbre has %d consonances" % len(consRatios)
-        
         mins = []
-        
         for i in range(len(consRatios)): # for each consonant frequency
             tmp = []
             for j in range(len(EqTemp_Ratios)): # for each 12TET step
                 tmp.append(abs(consRatios[i] - EqTemp_Ratios[j])) # append tmp with the difference between ConsFreq and Step
             if tmp.index(min(tmp)) not in mins: # if the index isn't already in mins
                 mins.append(tmp.index(min(tmp))) # add the min value for each i pass to the mins array
-                # print 'consRatios[%d] not moved' % i
             else:
                 mins.append(tmp.index(min(tmp))+1) # if it already is in mins, add one (i.e. make it the next half step up)
-                # print 'consRatios[%d] moved +1' % i
         # mins contains the indeces of the consFreqs, which corresponds to the interval, i.e. 3 is a minor 3rd, 7 is a 5th, etc
-        ########
         ########
         while True:
             length = raw_input("Enter file length in seconds: ")
@@ -259,8 +247,9 @@ class Timbre(object):
                 break
             except ValueError:
                 print "Must be an integer"
-                
+
         chordNotes = []
+
         while True:
             noteChoice = raw_input("Consonant half steps are %s. Enter the values you want; Press Enter with no value when done: " % ', '.join([str(m) for m in mins]))
             try:
@@ -271,29 +260,14 @@ class Timbre(object):
                 else:
                     break
         ########
-        ########
         sampleInc = 1.0/44100
         x = np.arange(0,length, sampleInc)
         wavData = np.zeros(len(x))
         noteDict = dict(zip(mins, consRatios))
-        ########
-        ########
-        if verbose:
-            steps_12TET = [self.f_0*(2**i) for i in np.arange(0,self.width + 1./12,1./12)] # 12 TET steps
-            print 'steps_12TET:\n', steps_12TET , '\n'
-            consFreqs = [round(self.f_0 * note, 3) for note in consRatios] # consonant frequencies
-            print 'consFreqs:\n', consFreqs
-            print '\n EqTempRatios:', EqTemp_Ratios
-            print '\n consRatios: ', consRatios
-            print '\n mins: ', mins
-            print '\n noteDict: ', noteDict
-        ########
-        ########
         for freq,amp in zip(self.freqs,self.amps):
             for c in chordNotes:
                 y = amp*np.sin(2*np.pi*noteDict[c]*freq*x)
                 wavData = np.sum([wavData,y], axis = 0)
-        
         mx = 1.1*(max(abs(wavData)))
         wavData = np.asarray(wavData)
         wavData = wavData/mx
@@ -303,9 +277,9 @@ class Timbre(object):
         print "File written to TimbreAudio folder"
 
 
-    def write12TETChord(self, length = 5): # , chordNotes = [0,4,7]
+    def write12TETChord(self): # , chordNotes = [0,4,7]
         """
-        Writes an equal tempered chord with the selected half steps. Prompts user for desired half steps.
+        Writes an equal tempered chord with the selected half steps. Prompts user for length and desired half steps.
         """
         self.audioGenPath()
         EqTemp_Ratios = [(2**(1.0 / 12))**x for x in range(13)]
