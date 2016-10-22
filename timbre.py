@@ -17,6 +17,9 @@ class Timbre(object):
         self.numPartials = numPartials
         
     def audioGenPath(self):
+        """
+        Creates a directory for audio files to be written to.
+        """
         if not os.path.exists('TimbreAudio'):
             os.makedirs('TimbreAudio')
         
@@ -165,7 +168,7 @@ class Timbre(object):
 
     def timbreGen(self):
         """Generates audio data and a .wav file of a timbre. 
-               * Default length 5 seconds. 
+               * prompts user for file length
                * files in TimbreAudio in cwd
         """
         self.audioGenPath()
@@ -199,8 +202,8 @@ class Timbre(object):
 
 
     def timbreSweep(self):
-        """Generates audio data and a .wav file of a timbre swept against itself. One tone is held constant, the other ascends for just over 1 octave.
-               * Default length 90 seconds. 
+        """Generates audio data and a .wav file of a timbre swept against itself, i.e. one tone is held constant, the other ascends for just over 1 octave.
+               * prompts user for file length
                * files in TimbreAudio in cwd
         """
         self.audioGenPath()
@@ -235,7 +238,9 @@ class Timbre(object):
 
     def writeConsonantChord(self, verbose = False):  
         """
-        Writes a chord with the selected half steps at the timbre's nearest consonant pitches. Prompts user for length and desired half steps.
+        Writes a chord with the selected half steps at the timbre's nearest consonant pitches. 
+            * Prompts user for length and desired half steps.
+            * Has some trouble with Odd and Beam timbres
         """
         self.audioGenPath()
         consRatios = [1] # initialize array
@@ -299,7 +304,8 @@ class Timbre(object):
 
     def writeEqTempChord(self): # , chordNotes = [0,4,7]
         """
-        Writes an equal tempered chord with the selected half steps. Prompts user for length and desired half steps.
+        Writes an equal tempered chord with the selected half steps. 
+            * Prompts user for length and desired half steps.
         """
         self.audioGenPath()
         EqTemp_Ratios = [(2**(1.0 / 12))**x for x in range(13)]
