@@ -1,7 +1,8 @@
 
 # Timbre Explorer
 
-The Timbre Explorer module creates Timbre objects for the investigation of the dissonance and consonance properties of musical timbres. The disMeasure() function is not mine - it is a Python translation of [William Sethares’s matlab and C code](http://sethares.engr.wisc.edu/comprog.html). I highly recommend reading his writings on the relationship between tuning and timbre. [Try this](http://sethares.engr.wisc.edu/consemi.html) for starters. I have added functions to do plots of various kinds and to generate .wav files so you can hear the timbres and their dissonance / consonance patterns. Requires Matplotlib, Numpy and Scipy.
+The Timbre Explorer module creates Timbre objects for the investigation of the dissonance and consonance properties of musical timbres. The disMeasure() function is not mine - it is a Python translation of [William Sethares’s matlab and C code](http://sethares.engr.wisc.edu/comprog.html). I have added functions to do plots of various kinds and to generate .wav files so you can hear the timbres and their dissonance / consonance patterns. Requires Matplotlib, Numpy and Scipy.
+
 
 ```python
 import Timbre
@@ -49,6 +50,14 @@ beam = Timbre.Beam()
     Timbre successfully initialized with Beam partials
 
 
+Run the disMeasure analysis:
+
+
+```python
+even.disMeasure()
+odd.disMeasure()
+beam.disMeasure()
+```
 
 Make some plots:
 
@@ -58,7 +67,7 @@ even.disPlot()
 ```
 
 
-![png](images/output_9_0.png)
+![png](output_9_0.png)
 
 
 Note the flat third (interval 4) 
@@ -69,7 +78,7 @@ odd.disPlot()
 ```
 
 
-![png](images/output_11_0.png)
+![png](output_11_0.png)
 
 
 
@@ -78,7 +87,7 @@ beam.disPlot()
 ```
 
 
-![png](images/output_12_0.png)
+![png](output_12_0.png)
 
 
 Note the stetched partials of the vibrating beam timbre, especially the sixth and octave
@@ -89,7 +98,7 @@ Timbre.disPlotMultiple(even, odd, beam)
 ```
 
 
-![png](images/output_14_0.png)
+![png](output_14_0.png)
 
 
 
@@ -107,7 +116,7 @@ square.wavePlot()
 ```
 
 
-![png](images/output_16_0.png)
+![png](output_16_0.png)
 
 
 
@@ -116,7 +125,7 @@ square.partialsPlot()
 ```
 
 
-![png](images/output_17_0.png)
+![png](output_17_0.png)
 
 
 
@@ -126,7 +135,7 @@ square.disPlot()
 ```
 
 
-![png](images/output_18_0.png)
+![png](output_18_0.png)
 
 
 
