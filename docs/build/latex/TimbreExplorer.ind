@@ -1,0 +1,56 @@
+\begin{theindex}
+\def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+
+  \bigletter A
+  \item audioGenPath() (Timbre.timbre.Timbre method), \hyperpage{3}
+
+  \indexspace
+  \bigletter B
+  \item Beam (class in Timbre.generators), \hyperpage{5}
+
+  \indexspace
+  \bigletter C
+  \item consDisFreqs() (Timbre.timbre.Timbre method), \hyperpage{3}
+  \item consFreqs() (Timbre.timbre.Timbre method), \hyperpage{3}
+  \item Custom (class in Timbre.generators), \hyperpage{5}
+
+  \indexspace
+  \bigletter D
+  \item disMeasure() (Timbre.timbre.Timbre method), \hyperpage{3}
+  \item disPlot() (Timbre.timbre.Timbre method), \hyperpage{3}
+
+  \indexspace
+  \bigletter E
+  \item Even (class in Timbre.generators), \hyperpage{5}
+  \item Evenodd (class in Timbre.generators), \hyperpage{5}
+
+  \indexspace
+  \bigletter O
+  \item Odd (class in Timbre.generators), \hyperpage{5}
+
+  \indexspace
+  \bigletter P
+  \item partialsPlot() (Timbre.timbre.Timbre method), \hyperpage{3}
+
+  \indexspace
+  \bigletter S
+  \item Sawtooth (class in Timbre.generators), \hyperpage{5}
+  \item Square (class in Timbre.generators), \hyperpage{5}
+
+  \indexspace
+  \bigletter T
+  \item Timbre (class in Timbre.timbre), \hyperpage{3}
+  \item Timbre (module), \hyperpage{1}
+  \item Timbre.generators (module), \hyperpage{5}
+  \item Timbre.timbre (module), \hyperpage{3}
+  \item timbreGen() (Timbre.timbre.Timbre method), \hyperpage{3}
+  \item timbreSweep() (Timbre.timbre.Timbre method), \hyperpage{3}
+  \item Triangle (class in Timbre.generators), \hyperpage{5}
+
+  \indexspace
+  \bigletter W
+  \item wavePlot() (Timbre.timbre.Timbre method), \hyperpage{3}
+  \item writeConsonantChord() (Timbre.timbre.Timbre method), \hyperpage{3}
+  \item writeEqTempChord() (Timbre.timbre.Timbre method), \hyperpage{4}
+
+\end{theindex}

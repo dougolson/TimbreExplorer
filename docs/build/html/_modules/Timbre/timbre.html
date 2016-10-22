@@ -1,0 +1,522 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Timbre.timbre &mdash; Timbre Explorer 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Timbre Explorer 0.0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Timbre.timbre</h1><div class="highlight"><pre>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="kn">import</span> <span class="n">read</span><span class="p">,</span> <span class="n">write</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">argrelextrema</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Timbre&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Timbre"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre">[docs]</a><span class="k">class</span> <span class="nc">Timbre</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parent class for the various timbre objects. Use subclasses Even, Odd, Evenodd, Square, Sawtooth, Triangle, Beam and Custom to create objects&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_0</span><span class="p">,</span> <span class="n">numPartials</span><span class="p">,</span><span class="n">octaves</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">increment</span> <span class="o">=</span> <span class="o">.</span><span class="mo">01</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_0</span> <span class="o">=</span> <span class="n">f_0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numPartials</span> <span class="o">=</span> <span class="n">numPartials</span>
+        
+<div class="viewcode-block" id="Timbre.audioGenPath"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.audioGenPath">[docs]</a>    <span class="k">def</span> <span class="nf">audioGenPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a directory for audio files to be written to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;TimbreAudio&#39;</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">&#39;TimbreAudio&#39;</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="Timbre.disMeasure"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.disMeasure">[docs]</a>    <span class="k">def</span> <span class="nf">disMeasure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">octaves</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the relative dissonance for a given Timbre object at all intervals within a specified range. disMeasure(octaves = 1).</span>
+
+<span class="sd">        returns an an array of relative dissonances **self.dissonances** and a normalized dissonance array **self.norm**</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">octaves</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">octaves</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">octaves</span> <span class="o">+</span> <span class="o">.</span><span class="mi">3</span> <span class="c1"># - octaves + 2</span>
+        <span class="c1"># Parameters</span>
+        <span class="n">Dstar</span> <span class="o">=</span> <span class="mf">0.24</span>
+        <span class="n">S1</span> <span class="o">=</span> <span class="mf">0.0207</span>
+        <span class="n">S2</span> <span class="o">=</span> <span class="mf">18.96</span>
+        <span class="n">C1</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">C2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+        <span class="n">A1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.51</span>
+        <span class="n">A2</span> <span class="o">=</span> <span class="o">-</span><span class="mf">5.75</span>
+        <span class="n">inc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">increment</span> <span class="c1"># step increment for x values</span>
+        <span class="n">frequencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqs</span>
+        <span class="n">amplitudes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">amp</span><span class="p">)</span> <span class="k">for</span> <span class="n">amp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">]</span>
+        <span class="n">dissonances</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># empty array for i loop</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">amplitudes</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">octaves</span><span class="p">,</span> <span class="n">inc</span><span class="p">):</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="p">[</span><span class="n">freq</span><span class="o">*</span><span class="n">i</span> <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">frequencies</span><span class="p">]</span> <span class="c1"># iterate each frequency in the frequency array over the x increments</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span><span class="n">amplitudes</span><span class="p">)</span> <span class="c1"># zip each frequency with its associated amplitude</span>
+            <span class="n">diss_j</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># empty array for j loop</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">x1</span><span class="p">:</span>
+                <span class="n">diss_k</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># empty array for k loop</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">x2</span><span class="p">:</span> <span class="c1">#perform calculations on each element of x2 and append result to diss_k array</span>
+                    <span class="n">S</span><span class="o">=</span><span class="n">Dstar</span><span class="o">/</span><span class="p">(</span><span class="n">S1</span><span class="o">*</span><span class="nb">min</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">S2</span><span class="p">)</span>
+                    <span class="n">Fdif</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">diss_k</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="n">C1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="o">**</span><span class="p">(</span><span class="n">A1</span><span class="o">*</span><span class="n">S</span><span class="o">*</span><span class="n">Fdif</span><span class="p">)</span><span class="o">+</span><span class="n">C2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="o">**</span><span class="p">(</span><span class="n">A2</span><span class="o">*</span><span class="n">S</span><span class="o">*</span><span class="n">Fdif</span><span class="p">)))</span>
+                <span class="n">diss_j</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diss_k</span><span class="p">))</span> <span class="c1"># sum each k iteration and append to j array</span>
+            <span class="n">dissonances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diss_j</span><span class="p">))</span> <span class="c1"># sum each j iteration and append to dissonances array</span>
+        <span class="n">normalizedDissonances</span> <span class="o">=</span> <span class="p">[</span><span class="n">diss</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="n">dissonances</span><span class="p">)</span> <span class="k">for</span> <span class="n">diss</span> <span class="ow">in</span> <span class="n">dissonances</span><span class="p">]</span> <span class="c1"># normalize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dissonances</span> <span class="o">=</span> <span class="n">dissonances</span> <span class="c1"># add raw values to self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalizedDissonances</span> <span class="o">=</span> <span class="n">normalizedDissonances</span> <span class="c1"># add normalized values to self</span></div>
+
+<div class="viewcode-block" id="Timbre.disPlot"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.disPlot">[docs]</a>    <span class="k">def</span> <span class="nf">disPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plots relative dissonance at all intervals for a given tone&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;normalizedDissonances&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disMeasure</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">octaves</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">increment</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizedDissonances</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">octaves</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">increment</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">dissonances</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">octaves</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">1.1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="mf">1.</span><span class="o">/</span><span class="mi">12</span><span class="p">,</span><span class="mf">1.</span><span class="o">/</span><span class="mi">12</span><span class="p">)))]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="mf">1.</span><span class="o">/</span><span class="mi">12</span><span class="p">,</span><span class="mf">1.</span><span class="o">/</span><span class="mi">12</span><span class="p">)],</span><span class="n">labels</span><span class="p">)</span> <span class="c1"># set ticks at equal tempered intervals</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;attenuation&#39;</span><span class="p">):</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Hz Fundamental, </span><span class="si">%d</span><span class="s1"> Partials, AttenRate </span><span class="si">%.2f</span><span class="s1">, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numPartials</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attenuation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">harmonics</span><span class="p">),</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Hz Fundamental, </span><span class="si">%d</span><span class="s1"> Partials, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numPartials</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">harmonics</span><span class="p">),</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">roundFreqs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">roundFreqs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="n">roundFreqs</span> <span class="o">=</span> <span class="n">roundFreqs</span><span class="p">[:</span><span class="mi">9</span><span class="p">]</span>
+            <span class="n">roundFreqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;etc&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Frequencies: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">roundFreqs</span><span class="p">),</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Semitone Interval (12TET)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Relative Dissonance&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        
+            
+
+<div class="viewcode-block" id="Timbre.partialsPlot"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.partialsPlot">[docs]</a>    <span class="k">def</span> <span class="nf">partialsPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plots the partials and their relative amplitudes for the timbre being examined. Positive Amplitudes in red, Negative amplitudes in blue.&quot;&quot;&quot;</span>
+        <span class="n">wdth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="o">/</span><span class="mf">4.0</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">wdth</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">freq</span><span class="p">,</span><span class="n">amp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">amp</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">amp</span><span class="p">),</span><span class="n">width</span> <span class="o">=</span> <span class="n">wdth</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">)</span><span class="o">-</span><span class="n">wdth</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">wdth</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Relative Amplitude&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency in Hz&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Partials for </span><span class="si">%s</span><span class="s1"> Object&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Timbre.wavePlot"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.wavePlot">[docs]</a>    <span class="k">def</span> <span class="nf">wavePlot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates a plot of the waveform for the timbre being examined&quot;&quot;&quot;</span>
+        <span class="n">inc</span> <span class="o">=</span> <span class="o">.</span><span class="mo">01</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">)</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">T</span><span class="o">*</span><span class="mf">1.01</span><span class="p">,</span> <span class="n">T</span><span class="o">/</span><span class="mf">100.0</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">f</span><span class="p">,</span><span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">data</span><span class="p">,</span><span class="n">y</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">data</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> harmonics</span><span class="se">\n</span><span class="s1">f_0 = </span><span class="si">%d</span><span class="s1"> Hz</span><span class="se">\n</span><span class="si">%d</span><span class="s1"> partials&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numPartials</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">1.1</span><span class="p">])</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">T</span><span class="o">*</span><span class="mf">1.01</span><span class="p">,</span><span class="n">T</span><span class="o">/</span><span class="mf">10.0</span><span class="p">)]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">10</span><span class="p">)],</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">leg</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Milliseconds&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Waveform of </span><span class="si">%s</span><span class="s1"> Object&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="Timbre.consDisFreqs"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.consDisFreqs">[docs]</a>    <span class="k">def</span> <span class="nf">consDisFreqs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">makePlot</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a list of the consonances (minima on the dissonance plot) for a given timbre. The consonances are used by consFreqs and writeChord. Optionally plots a bar graph                  showing the peak dissonant an consonant frequencies for a given Timbre object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;normalizedDissonances&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disMeasure</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizedDissonances</span><span class="p">)</span>
+        <span class="n">dis</span> <span class="o">=</span> <span class="n">argrelextrema</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">greater</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dissonances</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">d</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">increment</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dis</span><span class="p">]</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="n">argrelextrema</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">less</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dissonances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dissonances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">increment</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">con</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">makePlot</span><span class="p">:</span>
+            <span class="n">hDis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dissonances</span><span class="p">))</span>
+            <span class="n">hCon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consonances</span><span class="p">))</span>
+            <span class="n">ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consonances</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dissonances</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consonances</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="n">hCon</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span><span class="o">/</span><span class="mf">200.0</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">align</span> <span class="o">=</span> <span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Consonant&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dissonances</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="n">hDis</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span><span class="o">/</span><span class="mf">200.0</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Dissonant&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">leg</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Timbre.consFreqs"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.consFreqs">[docs]</a>    <span class="k">def</span> <span class="nf">consFreqs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">makePlot</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates an array of consonant frequencies for a given Timbre. Optionally plots a bar graph showing the peak dissonant an consonant frequencies for a given Timbre object&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;normalizedDissonances&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disMeasure</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizedDissonances</span><span class="p">)</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="n">argrelextrema</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">less</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">increment</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">con</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">makePlot</span><span class="p">:</span>
+            <span class="n">hCon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consonances</span><span class="p">))</span>
+            <span class="n">ticks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consonances</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="n">hCon</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span><span class="o">/</span><span class="mf">500.0</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">align</span> <span class="o">=</span> <span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Consonances for </span><span class="si">%d</span><span class="s1"> Hz Fundamental&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">leg</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Timbre.timbreGen"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.timbreGen">[docs]</a>    <span class="k">def</span> <span class="nf">timbreGen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates audio data and a .wav file of a timbre. </span>
+<span class="sd">               * prompts user for file length</span>
+<span class="sd">               * files in TimbreAudio in cwd</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">audioGenPath</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s2">&quot;Enter file length in seconds: &quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s2">&quot;Value must be an integer&quot;</span>
+        <span class="n">sampleInc</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mi">44100</span>
+        <span class="c1"># if hasattr(self, &#39;env&#39;): # Used with fft.py</span>
+<span class="c1">#             length = len(self.env)/44100.0</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">length</span><span class="p">,</span> <span class="n">sampleInc</span><span class="p">)</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">freq</span><span class="p">,</span><span class="n">amp</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">)):</span>
+            <span class="c1"># if hasattr(self, &#39;phase&#39;): # Used with fft.py</span>
+            <span class="c1">#     y = amp*np.sin(2*np.pi*freq*x + self.phase[i])</span>
+            <span class="c1"># else:</span>
+                <span class="c1"># y = amp*np.sin(2*np.pi*freq*x)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">amp</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">freq</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">wavData</span><span class="p">,</span><span class="n">y</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="mf">1.1</span><span class="o">*</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">wavData</span><span class="p">)))</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">wavData</span><span class="p">)</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">wavData</span><span class="o">/</span><span class="n">mx</span>
+        <span class="c1"># if hasattr(self, &#39;env&#39;): # used with fft.py</span>
+<span class="c1">#             wavData = self.env * wavData</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="mi">32000</span><span class="o">*</span><span class="n">wavData</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+        <span class="n">write</span><span class="p">(</span><span class="s1">&#39;TimbreAudio/</span><span class="si">%d</span><span class="s1">Hz_</span><span class="si">%d</span><span class="s1">partials_</span><span class="si">%s</span><span class="s1">.wav&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numPartials</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">harmonics</span> <span class="p">),</span> <span class="mf">44100.0</span><span class="p">,</span> <span class="n">wavData</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s2">&quot;File written to TimbreAudio folder&quot;</span></div>
+
+
+<div class="viewcode-block" id="Timbre.timbreSweep"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.timbreSweep">[docs]</a>    <span class="k">def</span> <span class="nf">timbreSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates audio data and a .wav file of a timbre swept against itself, i.e. one tone is held constant, the other ascends for just over 1 octave.</span>
+<span class="sd">               * prompts user for file length</span>
+<span class="sd">               * files in TimbreAudio in cwd</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">audioGenPath</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s2">&quot;Enter file length in seconds: &quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s2">&quot;Value must be an integer&quot;</span>
+        <span class="n">sampleInc</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mi">44100</span>
+        <span class="n">f_Start</span><span class="p">,</span> <span class="n">f_Stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span> <span class="p">[</span><span class="mf">2.2</span><span class="o">*</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">]</span> <span class="c1"># 2 arrays, one of initial and one of final partials </span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">sampleInc</span><span class="p">)</span> <span class="c1"># array of chosen length at 44.1 kHz sample rate</span>
+        <span class="n">ramp</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">times</span><span class="o">/</span><span class="n">length</span> <span class="c1"># linear ramp </span>
+        <span class="n">rampArray</span> <span class="o">=</span> <span class="p">[</span><span class="n">f0</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">ramp</span><span class="p">)</span> <span class="o">+</span> <span class="n">f1</span><span class="o">*</span><span class="n">ramp</span> <span class="k">for</span> <span class="n">f0</span><span class="p">,</span><span class="n">f1</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">f_Start</span><span class="p">,</span> <span class="n">f_Stop</span><span class="p">)]</span> <span class="c1">#generates an list of arrays, one for each frequency</span>
+        <span class="n">sweepData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">))</span>
+        <span class="n">phaseCorrect</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">times</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rampArray</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">freq</span><span class="p">,</span><span class="n">amp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">):</span> <span class="c1"># Constant frequency</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">amp</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">freq</span><span class="o">*</span><span class="n">times</span><span class="p">)</span>
+            <span class="n">sweepData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">sweepData</span><span class="p">,</span><span class="n">y</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">array</span><span class="p">,</span><span class="n">amp</span><span class="p">,</span><span class="n">phase</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rampArray</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">,</span><span class="n">phaseCorrect</span><span class="p">):</span> <span class="c1"># swept frequency</span>
+            <span class="n">tempData</span> <span class="o">=</span> <span class="n">amp</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">array</span><span class="o">*</span><span class="n">times</span> <span class="o">+</span> <span class="n">phase</span><span class="p">)</span>
+            <span class="n">sweepData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">sweepData</span><span class="p">,</span><span class="n">tempData</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="mf">1.1</span><span class="o">*</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">sweepData</span><span class="p">)))</span>
+        <span class="n">sweepData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sweepData</span><span class="p">)</span>
+        <span class="n">sweepData</span> <span class="o">=</span> <span class="n">sweepData</span><span class="o">/</span><span class="n">mx</span>
+        <span class="n">sweepData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="mi">32000</span><span class="o">*</span><span class="n">sweepData</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+        <span class="n">write</span><span class="p">(</span><span class="s1">&#39;TimbreAudio/</span><span class="si">%d</span><span class="s1">Hz_</span><span class="si">%d</span><span class="s1">Sec_OctSweep</span><span class="si">%d</span><span class="s1">partials_</span><span class="si">%s</span><span class="s1">.wav&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numPartials</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">harmonics</span> <span class="p">),</span> <span class="mf">44100.0</span><span class="p">,</span> <span class="n">sweepData</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s2">&quot;File written to TimbreAudio folder&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Timbre.writeConsonantChord"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.writeConsonantChord">[docs]</a>    <span class="k">def</span> <span class="nf">writeConsonantChord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>  
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes a chord with the selected half steps at the timbre&#39;s nearest consonant pitches. </span>
+<span class="sd">            * Prompts user for length and desired half steps.</span>
+<span class="sd">            * Has some trouble with Odd and Beam timbres</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">audioGenPath</span><span class="p">()</span>
+        <span class="n">consRatios</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># initialize array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consFreqs</span><span class="p">()</span>
+        <span class="n">consRatios</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span>
+        <span class="n">EqTemp_Ratios</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mi">12</span><span class="p">))</span><span class="o">**</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">)]</span> <span class="c1"># array of EQ Temp ratios, duh</span>
+        <span class="n">mins</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">consRatios</span><span class="p">)):</span> <span class="c1"># for each consonant frequency</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">EqTemp_Ratios</span><span class="p">)):</span> <span class="c1"># for each 12TET step</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">consRatios</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">EqTemp_Ratios</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span> <span class="c1"># append tmp with the difference between ConsFreq and Step</span>
+            <span class="k">if</span> <span class="n">tmp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">tmp</span><span class="p">))</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mins</span><span class="p">:</span> <span class="c1"># if the index isn&#39;t already in mins</span>
+                <span class="n">mins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">tmp</span><span class="p">)))</span> <span class="c1"># add the min value for each i pass to the mins array</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">tmp</span><span class="p">))</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># if it already is in mins, add one (i.e. make it the next half step up)</span>
+        <span class="c1"># mins contains the indeces of the consFreqs, which corresponds to the interval, i.e. 3 is a minor 3rd, 7 is a 5th, etc</span>
+        <span class="c1">########</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s2">&quot;Enter file length in seconds: &quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s2">&quot;Value must be an integer&quot;</span>
+
+        <span class="n">chordNotes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">print</span> <span class="s2">&quot;This timbre has </span><span class="si">%d</span><span class="s2"> consonances&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">consRatios</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">noteChoice</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s2">&quot;Consonant half steps are </span><span class="si">%s</span><span class="s2">. Enter the values you want; Press Enter twice when done: &quot;</span> <span class="o">%</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mins</span><span class="p">]))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">noteChoiceInt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">noteChoice</span><span class="p">)</span> <span class="c1"># will raise ValueError if noteChoice is &#39;&#39; or any string</span>
+                <span class="k">if</span> <span class="n">noteChoiceInt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mins</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">InputError</span>
+                <span class="n">chordNotes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">noteChoiceInt</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">noteChoice</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="c1"># noteChoice is not an int or &#39;&#39;</span>
+                    <span class="k">print</span> <span class="s2">&quot;Value must be an integer&quot;</span>
+                <span class="k">elif</span> <span class="n">noteChoice</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">chordNotes</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s2">&quot;Value must be an integer&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">except</span> <span class="n">InputError</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s2">&quot;Value must be in list&quot;</span>
+        <span class="c1">########</span>
+        <span class="n">sampleInc</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mi">44100</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">length</span><span class="p">,</span> <span class="n">sampleInc</span><span class="p">)</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">noteDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="n">consRatios</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">freq</span><span class="p">,</span><span class="n">amp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chordNotes</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">amp</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">noteDict</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">*</span><span class="n">freq</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">wavData</span><span class="p">,</span><span class="n">y</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="mf">1.1</span><span class="o">*</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">wavData</span><span class="p">)))</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">wavData</span><span class="p">)</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">wavData</span><span class="o">/</span><span class="n">mx</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="mi">32000</span><span class="o">*</span><span class="n">wavData</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+        <span class="n">write</span><span class="p">(</span><span class="s1">&#39;TimbreAudio/</span><span class="si">%d</span><span class="s1">HzFund_</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">ConsonantChord.wav&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">note</span><span class="p">)</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">chordNotes</span><span class="p">)]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">harmonics</span><span class="p">),</span> <span class="mf">44100.0</span><span class="p">,</span> <span class="n">wavData</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consonances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">print</span> <span class="s2">&quot;File written to TimbreAudio folder&quot;</span></div>
+
+
+<div class="viewcode-block" id="Timbre.writeEqTempChord"><a class="viewcode-back" href="../../index.html#Timbre.timbre.Timbre.writeEqTempChord">[docs]</a>    <span class="k">def</span> <span class="nf">writeEqTempChord</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="c1"># , chordNotes = [0,4,7]</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes an equal tempered chord with the selected half steps. </span>
+<span class="sd">            * Prompts user for length and desired half steps.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">audioGenPath</span><span class="p">()</span>
+        <span class="n">EqTemp_Ratios</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mi">12</span><span class="p">))</span><span class="o">**</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">)]</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s2">&quot;Enter file length in seconds: &quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s2">&quot;Must be an integer&quot;</span>
+        <span class="n">chordNotes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">noteChoice</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s2">&quot;Enter the half step values you want; Press Enter twice when done: &quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">chordNotes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">noteChoice</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">noteChoice</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s2">&quot;Value must be an integer&quot;</span>
+                <span class="k">elif</span> <span class="n">noteChoice</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">chordNotes</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s2">&quot;Value must be an integer&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+        <span class="n">sampleInc</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mi">44100</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">length</span><span class="p">,</span> <span class="n">sampleInc</span><span class="p">)</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">noteDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">EqTemp_Ratios</span><span class="p">)),</span> <span class="n">EqTemp_Ratios</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">freq</span><span class="p">,</span><span class="n">amp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">amps</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chordNotes</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">amp</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">noteDict</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">*</span> <span class="n">freq</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+                <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">wavData</span><span class="p">,</span><span class="n">y</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="mf">1.1</span><span class="o">*</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">wavData</span><span class="p">)))</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">wavData</span><span class="p">)</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">wavData</span><span class="o">/</span><span class="n">mx</span>
+        <span class="n">wavData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="mi">32000</span><span class="o">*</span><span class="n">wavData</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+        <span class="n">write</span><span class="p">(</span><span class="s1">&#39;TimbreAudio/</span><span class="si">%d</span><span class="s1">HzFund_</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">_EqTemp_Chord.wav&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_0</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">note</span><span class="p">)</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">chordNotes</span><span class="p">)]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">harmonics</span><span class="p">),</span> <span class="mf">44100.0</span><span class="p">,</span> <span class="n">wavData</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s2">&quot;File written to TimbreAudio folder&quot;</span></div></div>
+        
+        
+    <span class="c1"># def writeConsFreqs(self, length = 5):</span>
+    <span class="c1">#     &quot;&quot;&quot;Generates audio data and a .wav file of a timbre.</span>
+    <span class="c1">#            * Default length 5 seconds.</span>
+    <span class="c1">#            * files in TimbreAudio in cwd</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     self.audioGenPath()</span>
+    <span class="c1">#     sampleInc = 1.0/44100</span>
+    <span class="c1">#     consRatios = [1] # initialize array</span>
+    <span class="c1">#     self.consFreqs()</span>
+    <span class="c1">#     consRatios[1:] = self.consonances/self.f_0</span>
+    <span class="c1">#</span>
+    <span class="c1">#     EqTemp_Ratios = [(2**(1./12))**x for x in range(13)] # array of EQ Temp ratios, duh</span>
+    <span class="c1">#</span>
+    <span class="c1">#     print &quot;This timbre has %d consonances&quot; % len(consRatios)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     mins = []</span>
+    <span class="c1">#     for i in range(len(consRatios)): # for each consonant frequency</span>
+    <span class="c1">#         tmp = []</span>
+    <span class="c1">#         for j in range(len(EqTemp_Ratios)): # for each 12TET step</span>
+    <span class="c1">#             tmp.append(abs(consRatios[i] - EqTemp_Ratios[j])) # append tmp with the difference between ConsFreq and Step</span>
+    <span class="c1">#         if tmp.index(min(tmp)) not in mins: # if the index isn&#39;t already in mins</span>
+    <span class="c1">#             mins.append(tmp.index(min(tmp))) # add the min value for each i pass to the mins array</span>
+    <span class="c1">#             # print &#39;consRatios[%d] not moved&#39; % i</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             mins.append(tmp.index(min(tmp))+1) # if it already is in mins, add one (i.e. make it the next half step up)</span>
+    <span class="c1">#     x = np.arange(0,length, sampleInc)</span>
+    <span class="c1">#     wavData = np.zeros(len(x))</span>
+    <span class="c1">#</span>
+    <span class="c1">#     for i,(freq,amp) in enumerate(zip(self.freqs,self.amps)):</span>
+    <span class="c1">#         y = amp*np.sin(2*np.pi*freq*x)</span>
+    <span class="c1">#         wavData = np.sum([wavData,y], axis = 0)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     mx = 1.1*(max(abs(wavData)))</span>
+    <span class="c1">#     wavData = np.asarray(wavData)</span>
+    <span class="c1">#     wavData = wavData/mx</span>
+    <span class="c1">#     if hasattr(self, &#39;env&#39;):</span>
+    <span class="c1">#         wavData = self.env * wavData</span>
+    <span class="c1">#     wavData = np.asarray(32000*wavData, dtype = np.int16)</span>
+    <span class="c1">#     write(&#39;TimbreAudio/%dHz_%dpartials_%s.wav&#39; % (self.f_0, self.numPartials, self.harmonics ), 44100.0, wavData)</span>
+    <span class="c1">#     print &quot;File written to TimbreAudio folder&quot;</span>
+<span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">InputError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+    <span class="k">pass</span>
+        
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">generators</span> <span class="kn">import</span> <span class="o">*</span>
+    <span class="c1"># # print os.path.dirname(os.path.realpath(__file__))</span>
+    <span class="c1"># f = [260.44805563090279, 520.35237836904787, 778.62550242892019, 1039.6172909525806, 1300.609079476241, 1558.3384706433555, 1819.330259167016, 2078.6908490124033]</span>
+    <span class="c1"># a = [0.16724917882935164, 1.0, 0.05825872786812774, 0.019126990466560075, 0.097543923859240947, 0.014853679015129385, 0.013322988640851378, 0.012819862560537666]</span>
+    <span class="c1"># f,a = sfft.simple_fft(&#39;./samples/Bassoon.ff.C4.wav&#39;, mkPlot = True)</span>
+    <span class="c1"># foo = Custom(f,a)</span>
+    <span class="c1"># print &#39;len(f) = &#39;, len(f)</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">Even</span><span class="p">()</span>
+    <span class="c1"># # foo.timbreSweep(length = 60)</span>
+    <span class="c1"># foo.disMeasure(octaves = 1)</span>
+    <span class="c1"># # foo.timbreGen()</span>
+    
+    <span class="c1"># # foo.consDisFreqs()</span>
+    <span class="c1"># foo.consFreqs(makePlot = True)</span>
+    <span class="n">foo</span><span class="o">.</span><span class="n">writeChord</span><span class="p">(</span><span class="n">length</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="c1"># # foo.partialsPlot()</span>
+    <span class="c1"># foo.wavePlot()</span>
+    <span class="c1"># foo.disPlot()</span>
+    <span class="c1"># foo.disPlot(False)</span>
+    
+    <span class="c1"># f,a = fft6.get_fft_freq_array(&#39;./samples/Bassoon.ff.C4.wav&#39;, mkPlot = False, verbose = False)</span>
+    <span class="c1"># print f</span>
+    <span class="c1"># print a</span>
+    
+    <span class="c1"># bar = even(numPartials = 10)</span>
+    <span class="c1"># bar.dismeasure(octaves = 2)</span>
+    <span class="c1"># # bar.timbreGen()</span>
+    <span class="c1"># #</span>
+    <span class="c1"># baz = even(numPartials = 20)</span>
+    <span class="c1"># baz.dismeasure(octaves = 2)</span>
+    <span class="c1"># baz.timbreGen()</span>
+    <span class="c1"># moo = sawtooth(numPartials = 7)</span>
+    <span class="c1"># moo.dismeasure(octaves = 1)</span>
+    <span class="c1"># moo.wavePlot()</span>
+    <span class="c1"># moo.consDisFreqs()</span>
+    <span class="c1"># moo.timbreGen()</span>
+    <span class="c1"># disPlotMultiple(foo, bar, baz, moo)</span>
+
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Doug Olson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

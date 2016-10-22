@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Timbre package &mdash; Timbre Explorer 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Timbre Explorer 0.0.1 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="timbre-package">
+<h1>Timbre package<a class="headerlink" href="#timbre-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-Timbre.generators">
+<span id="timbre-generators-module"></span><h2>Timbre.generators module<a class="headerlink" href="#module-Timbre.generators" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Timbre.generators.Even">
+<em class="property">class </em><code class="descclassname">Timbre.generators.</code><code class="descname">Even</code><span class="sig-paren">(</span><em>f_0=220</em>, <em>numPartials=7</em>, <em>attenuation=0.7071</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/generators.html#Even"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.generators.Even" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Timbre.timbre.Timbre" title="Timbre.timbre.Timbre"><code class="xref py py-class docutils literal"><span class="pre">Timbre.timbre.Timbre</span></code></a></p>
+<p>A Timbre object with Even harmonics.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Timbre.generators.Odd">
+<em class="property">class </em><code class="descclassname">Timbre.generators.</code><code class="descname">Odd</code><span class="sig-paren">(</span><em>f_0=220</em>, <em>numPartials=7</em>, <em>attenuation=0.7071</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/generators.html#Odd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.generators.Odd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Timbre.timbre.Timbre" title="Timbre.timbre.Timbre"><code class="xref py py-class docutils literal"><span class="pre">Timbre.timbre.Timbre</span></code></a></p>
+<p>A Timbre object with Odd harmonics</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Timbre.generators.Evenodd">
+<em class="property">class </em><code class="descclassname">Timbre.generators.</code><code class="descname">Evenodd</code><span class="sig-paren">(</span><em>f_0=220</em>, <em>numPartials=7</em>, <em>attenuation=0.7071</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/generators.html#Evenodd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.generators.Evenodd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Timbre.timbre.Timbre" title="Timbre.timbre.Timbre"><code class="xref py py-class docutils literal"><span class="pre">Timbre.timbre.Timbre</span></code></a></p>
+<p>A Timbre object with Even and Odd harmonics</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Timbre.generators.Square">
+<em class="property">class </em><code class="descclassname">Timbre.generators.</code><code class="descname">Square</code><span class="sig-paren">(</span><em>f_0=220</em>, <em>numPartials=7</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/generators.html#Square"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.generators.Square" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Timbre.timbre.Timbre" title="Timbre.timbre.Timbre"><code class="xref py py-class docutils literal"><span class="pre">Timbre.timbre.Timbre</span></code></a></p>
+<p>A Timbre object with A Square wave (additive synthesis). Odd Harmonics. Attenuation rate is fixed at 1 / n</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Timbre.generators.Sawtooth">
+<em class="property">class </em><code class="descclassname">Timbre.generators.</code><code class="descname">Sawtooth</code><span class="sig-paren">(</span><em>f_0=220</em>, <em>numPartials=7</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/generators.html#Sawtooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.generators.Sawtooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Timbre.timbre.Timbre" title="Timbre.timbre.Timbre"><code class="xref py py-class docutils literal"><span class="pre">Timbre.timbre.Timbre</span></code></a></p>
+<p>A Timbre object with A Sawtooth wave (additive synthesis). Attenuation rate is fixed at 2*(-1^n)/n * pi, n being the partial #</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Timbre.generators.Triangle">
+<em class="property">class </em><code class="descclassname">Timbre.generators.</code><code class="descname">Triangle</code><span class="sig-paren">(</span><em>f_0=220</em>, <em>numPartials=7</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/generators.html#Triangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.generators.Triangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Timbre.timbre.Timbre" title="Timbre.timbre.Timbre"><code class="xref py py-class docutils literal"><span class="pre">Timbre.timbre.Timbre</span></code></a></p>
+<p>A Timbre object with A Triangle wave (additive synthesis). Attenuation rate is fixed at 0.8105694691387022*((-1)^((n - 1)/2.)/(n^2)) n being the partial #</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Timbre.generators.Custom">
+<em class="property">class </em><code class="descclassname">Timbre.generators.</code><code class="descname">Custom</code><span class="sig-paren">(</span><em>freq_array</em>, <em>amps_array</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/generators.html#Custom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.generators.Custom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Timbre.timbre.Timbre" title="Timbre.timbre.Timbre"><code class="xref py py-class docutils literal"><span class="pre">Timbre.timbre.Timbre</span></code></a></p>
+<p>A Timbre object with Custom harmonics.</p>
+<ul class="simple">
+<li>freq_array: an array of frequencies</li>
+<li>amps_array: an array of amplitides</li>
+<li>freq_array and amps_array must have the same length</li>
+</ul>
+</dd></dl>
+
+<dl class="class">
+<dt id="Timbre.generators.Beam">
+<em class="property">class </em><code class="descclassname">Timbre.generators.</code><code class="descname">Beam</code><span class="sig-paren">(</span><em>f_0=220</em>, <em>numPartials=7</em>, <em>attenuation=0.7071</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/generators.html#Beam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.generators.Beam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Timbre.timbre.Timbre" title="Timbre.timbre.Timbre"><code class="xref py py-class docutils literal"><span class="pre">Timbre.timbre.Timbre</span></code></a></p>
+<p>A Timbre object with Beam harmonics. Partial frequencies are .4413 * f_0*(n +.5)^2</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Timbre.helpers">
+<span id="timbre-helpers-module"></span><h2>Timbre.helpers module<a class="headerlink" href="#module-Timbre.helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Timbre.helpers.disPlotMultiple">
+<code class="descclassname">Timbre.helpers.</code><code class="descname">disPlotMultiple</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/helpers.html#disPlotMultiple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.helpers.disPlotMultiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the dissonance curves for multiple Timbre objects. Uses the non-normalized dissonance arrays to allow for comparison. Usage:
+&gt;&gt;&gt; Timbre.disPlotMultiple(foo, bar, baz)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Timbre.timbre">
+<span id="timbre-timbre-module"></span><h2>Timbre.timbre module<a class="headerlink" href="#module-Timbre.timbre" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Timbre.timbre.Timbre">
+<em class="property">class </em><code class="descclassname">Timbre.timbre.</code><code class="descname">Timbre</code><span class="sig-paren">(</span><em>f_0</em>, <em>numPartials</em>, <em>octaves=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Parent class for the various timbre objects. Use subclasses Even, Odd, Evenodd, Square, Sawtooth, Triangle, Beam and Custom to create objects</p>
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.audioGenPath">
+<code class="descname">audioGenPath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.audioGenPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.audioGenPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a directory for audio files to be written to.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.consDisFreqs">
+<code class="descname">consDisFreqs</code><span class="sig-paren">(</span><em>makePlot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.consDisFreqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.consDisFreqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a list of the consonances (minima on the dissonance plot) for a given timbre. The consonances are used by consFreqs and writeChord. Optionally plots a bar graph                  showing the peak dissonant an consonant frequencies for a given Timbre object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.consFreqs">
+<code class="descname">consFreqs</code><span class="sig-paren">(</span><em>makePlot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.consFreqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.consFreqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an array of consonant frequencies for a given Timbre. Optionally plots a bar graph showing the peak dissonant an consonant frequencies for a given Timbre object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.disMeasure">
+<code class="descname">disMeasure</code><span class="sig-paren">(</span><em>octaves=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.disMeasure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.disMeasure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the relative dissonance for a given Timbre object at all intervals within a specified range. disMeasure(octaves = 1).</p>
+<p>returns an an array of relative dissonances <strong>self.dissonances</strong> and a normalized dissonance array <strong>self.norm</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.disPlot">
+<code class="descname">disPlot</code><span class="sig-paren">(</span><em>normalized=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.disPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.disPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots relative dissonance at all intervals for a given tone</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.partialsPlot">
+<code class="descname">partialsPlot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.partialsPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.partialsPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the partials and their relative amplitudes for the timbre being examined. Positive Amplitudes in red, Negative amplitudes in blue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.timbreGen">
+<code class="descname">timbreGen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.timbreGen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.timbreGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates audio data and a .wav file of a timbre. 
+* prompts user for file length
+* files in TimbreAudio in cwd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.timbreSweep">
+<code class="descname">timbreSweep</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.timbreSweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.timbreSweep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates audio data and a .wav file of a timbre swept against itself, i.e. one tone is held constant, the other ascends for just over 1 octave.
+* prompts user for file length
+* files in TimbreAudio in cwd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.wavePlot">
+<code class="descname">wavePlot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.wavePlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.wavePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a plot of the waveform for the timbre being examined</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.writeConsonantChord">
+<code class="descname">writeConsonantChord</code><span class="sig-paren">(</span><em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.writeConsonantChord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.writeConsonantChord" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Writes a chord with the selected half steps at the timbre&#8217;s nearest consonant pitches. </dt>
+<dd><ul class="first last simple">
+<li>Prompts user for length and desired half steps.</li>
+<li>Has some trouble with Odd and Beam timbres</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="Timbre.timbre.Timbre.writeEqTempChord">
+<code class="descname">writeEqTempChord</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Timbre/timbre.html#Timbre.writeEqTempChord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Timbre.timbre.Timbre.writeEqTempChord" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Writes an equal tempered chord with the selected half steps. </dt>
+<dd><ul class="first last simple">
+<li>Prompts user for length and desired half steps.</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Timbre">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-Timbre" title="Permalink to this headline">¶</a></h2>
+<p>The Timbre Explorer module creates Timbre objects for the investigation of the dissonance and consonance properties of musical timbres. The disMeasure() function
+is a Python translation of <a class="reference external" href="http://sethares.engr.wisc.edu/comprog.html">William Sethares&#8217;s matlab and C code</a>. I have added
+functions to do plots of various kinds and to generate .wav files so you can hear the timbres and their dissonance / consonance patterns. Requires Matplotlib, Numpy and Scipy.</p>
+<dl class="docutils">
+<dt>Objects can be initialized as:</dt>
+<dd><ul class="first last simple">
+<li>Even</li>
+<li>Odd</li>
+<li>Evenodd</li>
+<li>Square</li>
+<li>Sawtooth</li>
+<li>Triangle</li>
+<li>Beam</li>
+<li>Custom</li>
+</ul>
+</dd>
+</dl>
+<p>Most objects have the following properties:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>f_0</strong>: the fundamental frequency. Default is 220 Hz</li>
+<li><strong>n_partials</strong>: the desired number of partials in the tone. Default is 7</li>
+<li><strong>attenuation</strong>: the attenuation rate to be applied to the partials. Default is .7071</li>
+</ul>
+</div></blockquote>
+<p>Specific waveforms such as Square, Sawtooth etc, have predefined spectra and attenuation rates</p>
+<p>The Custom object allows the user to specify any desired set of partials and amplitudes.</p>
+<p>Typical usage, assuming you cd to the directory that contains the <strong>Timbre</strong> directory and run Python 2.7x from there:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">Timbre</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">Timbre</span><span class="o">.</span><span class="n">Even</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">disMeasure</span><span class="p">(</span><span class="n">octaves</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># perform the dissonance calculation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">disPlot</span><span class="p">()</span> <span class="c1"># plot the dissonance curve for the timbre</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ConsDisFreqs</span><span class="p">()</span> <span class="c1"># plot of the maximima and minima in the dissonance curve</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">partialsPlot</span><span class="p">()</span> <span class="c1"># bar plot of the relative amplitudes and frequencies for the partials of the timbre </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">wavePlot</span><span class="p">()</span> <span class="c1"># plot one period of the timbre&#39;s waveform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">timbreGen</span><span class="p">()</span> <span class="c1"># Generate a 5 second sample of the timbre </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">timbreSweep</span><span class="p">(</span><span class="n">length</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="c1"># Generate a sweep of the timbre against itself</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bar</span> <span class="o">=</span> <span class="n">Timbre</span><span class="o">.</span><span class="n">Beam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Timbre</span><span class="o">.</span><span class="n">disPlotMultiple</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">bar</span><span class="p">)</span> <span class="c1"># Generate a dissonance plot for both foo and bar</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Timbre package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-Timbre.generators">Timbre.generators module</a></li>
+<li><a class="reference internal" href="#module-Timbre.helpers">Timbre.helpers module</a></li>
+<li><a class="reference internal" href="#module-Timbre.timbre">Timbre.timbre module</a></li>
+<li><a class="reference internal" href="#module-Timbre">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Timbre.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Doug Olson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/Timbre.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

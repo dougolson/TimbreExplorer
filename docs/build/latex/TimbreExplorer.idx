@@ -1,0 +1,23 @@
+\indexentry{Timbre (module)|hyperpage}{1}
+\indexentry{Timbre.timbre (module)|hyperpage}{3}
+\indexentry{Timbre (class in Timbre.timbre)|hyperpage}{3}
+\indexentry{audioGenPath() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{consDisFreqs() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{consFreqs() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{disMeasure() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{disPlot() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{partialsPlot() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{timbreGen() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{timbreSweep() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{wavePlot() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{writeConsonantChord() (Timbre.timbre.Timbre method)|hyperpage}{3}
+\indexentry{writeEqTempChord() (Timbre.timbre.Timbre method)|hyperpage}{4}
+\indexentry{Timbre.generators (module)|hyperpage}{5}
+\indexentry{Even (class in Timbre.generators)|hyperpage}{5}
+\indexentry{Odd (class in Timbre.generators)|hyperpage}{5}
+\indexentry{Evenodd (class in Timbre.generators)|hyperpage}{5}
+\indexentry{Square (class in Timbre.generators)|hyperpage}{5}
+\indexentry{Sawtooth (class in Timbre.generators)|hyperpage}{5}
+\indexentry{Triangle (class in Timbre.generators)|hyperpage}{5}
+\indexentry{Custom (class in Timbre.generators)|hyperpage}{5}
+\indexentry{Beam (class in Timbre.generators)|hyperpage}{5}

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 The Timbre Explorer module creates Timbre objects for the investigation of the dissonance and consonance properties of musical timbres. The disMeasure() function
-is a Python translation of `William Sethares's matlab and C code <http://sethares.engr.wisc.edu/comprog.html>`_. I have added
+is a Python translation of `William Sethares's matlab and C code <http://sethares.engr.wisc.edu/comprog.html>`_. I have added timbre objects and
 functions to do plots of various kinds and to generate .wav files so you can hear the timbres and their dissonance / consonance patterns. Requires Matplotlib, Numpy and Scipy.
 
 Objects can be initialized as:
@@ -27,16 +27,20 @@ The Custom object allows the user to specify any desired set of partials and amp
 Typical usage, assuming you cd to the directory that contains the **Timbre** directory and run Python 2.7x from there:
 
     >>> import Timbre
-    >>> foo = Timbre.Even()
-    >>> foo.disMeasure(octaves = 1) # perform the dissonance calculation
-    >>> foo.disPlot() # plot the dissonance curve for the timbre
-    >>> foo.ConsDisFreqs() # plot of the maximima and minima in the dissonance curve
-    >>> foo.partialsPlot() # bar plot of the relative amplitudes and frequencies for the partials of the timbre 
+    >>> foo = Timbre.Even() # Create an object with even partials and default parameters
+    >>> bar = Timbre.Beam(f_0 = 327, numPartials = 17, attenuation = .5) # Create an object with partials of a vibrating beam
+    >>> freqs = [300, 600, 900, 1200]
+    >>> amps = [1, .5, .3, .9]
+    >>> baz = Timbre.Custom(freqs, amps) # Create an object with custom partials
+    >>> foo.disPlot() # plot the dissonance curve for the timbre 
+    >>> bar.ConsDisFreqs(makePlot = True) # plot identifies maximima and minima in the dissonance curve
+    >>> baz.partialsPlot() # bar plot of the relative amplitudes and frequencies for the partials of the timbre 
     >>> foo.wavePlot() # plot one period of the timbre's waveform
-    >>> foo.timbreGen() # Generate a 5 second sample of the timbre 
-    >>> foo.timbreSweep(length = 60) # Generate a sweep of the timbre against itself
-    >>> bar = Timbre.Beam()
-    >>> Timbre.disPlotMultiple(foo, bar) # Generate a dissonance plot for both foo and bar
+    >>> bar.timbreGen() # Generate a 5 second sample of the timbre 
+    >>> baz.timbreSweep(length = 60) # Generate a sweep of the timbre against itself
+    >>> Timbre.disPlotMultiple(foo, bar, baz) # Generate a dissonance plot for timbres foo, bar and baz
+    >>> foo.writeConsonantChord() # Writes .wav chord, user selected intervals, based on consonant frequencies
+    >>> foo.writeEqTempChord() # Writes .wav chord, user selected intervals, based on equal tempered frequencies
 
 
 
