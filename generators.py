@@ -9,9 +9,9 @@ class Even(Timbre):
     def __init__(self, f_0 = 220, numPartials = 7, attenuation = .7071):
         Timbre.__init__(self, f_0, numPartials)
         self.attenuation = attenuation
-        self.freqs = [self.f_0*i for i in range(1,2*self.numPartials) if i == 1 or i % 2 == 0]
+        self.freqs = [self.f_0 * i for i in range(1, 2 * self.numPartials) if i == 1 or i % 2 == 0]
         self.amps = [self.attenuation**p for p in range(self.numPartials)]
-        self.harmonics = 'Even Harmonics'
+        self.harmonics = 'EvenHarmonics'
         if hasattr(self, 'attenuation'):
             print "Timbre successfully initialized with parameters of %dHz, %d partials, attenuation factor of %.2f\n" % (self.f_0, self.numPartials, self.attenuation)
         else:
@@ -20,12 +20,12 @@ class Even(Timbre):
 class Odd(Timbre):
     """A Timbre object with Odd harmonics
     """
-    def __init__(self,f_0 = 220, numPartials = 7, attenuation = .7071):
+    def __init__(self, f_0 = 220, numPartials = 7, attenuation = .7071):
         Timbre.__init__(self, f_0, numPartials)
         self.attenuation = attenuation
-        self.freqs = [self.f_0*i for i in range(1,2*self.numPartials + 1) if i % 2 != 0]
+        self.freqs = [self.f_0 * i for i in range(1, 2 * self.numPartials + 1) if i % 2 != 0]
         self.amps = [self.attenuation**p for p in range(self.numPartials)]
-        self.harmonics = 'Odd Harmonics'
+        self.harmonics = 'OddHarmonics'
         if hasattr(self, 'attenuation'):
             print "Timbre successfully initialized with parameters of %dHz, %d partials, attenuation factor of %.2f\n" % (self.f_0, self.numPartials, self.attenuation)
         else:
@@ -39,9 +39,9 @@ class Evenodd(Timbre):
         Timbre.__init__(self, f_0, numPartials)
         
         self.attenuation = attenuation
-        self.freqs = [self.f_0*i for i in range(1,self.numPartials + 1)]
+        self.freqs = [self.f_0 * i for i in range(1, self.numPartials + 1)]
         self.amps = [self.attenuation**p for p in range(self.numPartials)]
-        self.harmonics = 'Even and Odd Harmonics'
+        self.harmonics = 'EvenOddHarmonics'
         if hasattr(self, 'attenuation'):
             print "Timbre successfully initialized with parameters of %dHz, %d partials, attenuation factor of %.2f\n" % (self.f_0, self.numPartials, self.attenuation)
         else:
@@ -49,13 +49,13 @@ class Evenodd(Timbre):
 
 
 class Square(Timbre):
-    """A Timbre object with A Square wave (additive synthesis). Odd Harmonics. Attenuation rate is fixed at 1/n 
+    """A Timbre object with A Square wave (additive synthesis). Odd Harmonics. Attenuation rate is fixed at 1 / n 
     """
-    def __init__(self,f_0 = 220, numPartials = 7):
+    def __init__(self, f_0 = 220, numPartials = 7):
         Timbre.__init__(self, f_0, numPartials)
-        self.freqs = [self.f_0*i for i in range(1,2*self.numPartials + 1) if i % 2 != 0]
-        self.amps = [1.0/(i) for i in range(1,2*self.numPartials + 1) if i % 2 != 0]
-        self.harmonics = 'Square Wave'
+        self.freqs = [self.f_0 * i for i in range(1, 2 * self.numPartials + 1) if i % 2 != 0]
+        self.amps = [1.0/(i) for i in range(1, 2 * self.numPartials + 1) if i % 2 != 0]
+        self.harmonics = 'SquareWave'
         if hasattr(self, 'attenuation'):
             print "Timbre successfully initialized with parameters of %dHz, %d partials, attenuation factor of %.2f\n" % (self.f_0, self.numPartials, self.attenuation)
         else:
@@ -64,13 +64,14 @@ class Square(Timbre):
 
 
 class Sawtooth(Timbre):
-    """A Timbre object with A Sawtooth wave (additive synthesis). Attenuation rate is fixed at 2*(-1^n)/n*pi, n being the partial #
+    """A Timbre object with A Sawtooth wave (additive synthesis). Attenuation rate is fixed at 2*(-1^n)/n * pi, n being the partial #
     """
-    def __init__(self,f_0 = 220, numPartials = 7):
+    def __init__(self, f_0 = 220, numPartials = 7):
         Timbre.__init__(self, f_0, numPartials)
-        self.freqs = [self.f_0*i for i in range(1,self.numPartials + 1)]
-        self.amps = [2*((-1)**i)/(np.pi*i) for i in range(1, self.numPartials + 1)]
-        self.harmonics = 'Sawtooth Wave'
+        self.freqs = [self.f_0 * i for i in range(1, self.numPartials + 1)]
+        self.amps = [2*((-1)**i)/(np.pi * i) for i in range(1, self.numPartials + 1)]
+        print self.amps
+        self.harmonics = 'SawtoothWave'
         if hasattr(self, 'attenuation'):
             print "Timbre successfully initialized with parameters of %dHz, %d partials, attenuation factor of %.2f\n" % (self.f_0, self.numPartials, self.attenuation)
         else:
@@ -79,13 +80,13 @@ class Sawtooth(Timbre):
 
 
 class Triangle(Timbre):
-    """A Timbre object with A Triangle wave (additive synthesis). Attenuation rate is fixed at 0.8105694691387022*((-1)^((n-1)/2.)/(n^2)) n being the partial #
+    """A Timbre object with A Triangle wave (additive synthesis). Attenuation rate is fixed at 0.8105694691387022*((-1)^((n - 1)/2.)/(n^2)) n being the partial #
     """
-    def __init__(self,f_0 = 220, numPartials = 7):
+    def __init__(self, f_0 = 220, numPartials = 7):
         Timbre.__init__(self, f_0, numPartials)
-        self.freqs = [self.f_0*i for i in range(0,2*self.numPartials + 1) if i % 2 != 0]
-        self.amps = [0.8105694691387022*((-1)**((i-1)/2.)/(i**2)) for i in range(1, 2*self.numPartials + 1) if i % 2 != 0]
-        self.harmonics = 'Triangle Wave'
+        self.freqs = [self.f_0 * i for i in range(0, 2 * self.numPartials + 1) if i % 2 != 0]
+        self.amps = [0.8105694691387022*((-1)**((i - 1)/2.)/(i**2)) for i in range(1, 2 * self.numPartials + 1) if i % 2 != 0]
+        self.harmonics = 'TriangleWave'
         if hasattr(self, 'attenuation'):
             print "Timbre successfully initialized with parameters of %dHz, %d partials, attenuation factor of %.2f\n" % (self.f_0, self.numPartials, self.attenuation)
         else:
@@ -107,19 +108,19 @@ class Custom(Timbre):
         self.freqs = freq_array
         self.amps = amps_array
         # self.phase = phaseArray
-        self.harmonics = 'Custom Harmonics'
+        self.harmonics = 'CustomHarmonics'
         # self.env = env_array
         
         print "Timbre successfully initialized with custom partials"
 
 class Beam(Timbre):
-    """A Timbre object with Beam harmonics. Partial frequencies are .4413*f_0*(n +.5)^2
+    """A Timbre object with Beam harmonics. Partial frequencies are .4413 * f_0*(n +.5)^2
     """
-    def __init__(self,f_0 = 220, numPartials = 7, attenuation = .7071):
+    def __init__(self, f_0 = 220, numPartials = 7, attenuation = .7071):
         Timbre.__init__(self, f_0, numPartials)
         self.attenuation = attenuation
-        self.freqs = [.4413*f_0*(n +.5)**2 for n in range(1,numPartials + 1)]
+        self.freqs = [.4413 * f_0*(n +.5)**2 for n in range(1, numPartials + 1)]
         self.amps = [self.attenuation**p for p in range(numPartials)]
-        self.harmonics = 'Beam Harmonics'
+        self.harmonics = 'BeamHarmonics'
         print "Timbre successfully initialized with Beam partials"
     

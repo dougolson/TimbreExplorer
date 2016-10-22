@@ -2,24 +2,25 @@ from timbre import *
 from generators import *
 import matplotlib.pyplot as plt
 import numpy as np
-__all__ = ['plotMultiple', 'disPlotMultiple']
+__all__ = ['disPlotMultiple']
+
+
+
 
 
 def disPlotMultiple(*args):
-    """Plots the dissonance curves for multiple Timbre objects. Uses the non-normalized dissonance arrays to allow for comparison 
-    
-        Usage:
-    
-            >>> disPlotMultiple(foo, bar, baz)
+    """Plots the dissonance curves for multiple Timbre objects. Uses the non-normalized dissonance arrays to allow for comparison. Usage:
+            >>> Timbre.disPlotMultiple(foo, bar, baz)
     """
     ymax = []
     octavesMax = []
     widthMax = []
     for arg in args:
+        arg.disMeasure()
         ymax.append(max(arg.dissonances))
         octavesMax.append(arg.octaves)
         widthMax.append(arg.width)
-        plt.plot(np.arange(1,arg.octaves, arg.increment),arg.dissonances, linewidth=1.0, label = '%s harmonics\n%d Hz f_0\n%d partials' % (arg.name, arg.f_0, arg.n_partials))
+        plt.plot(np.arange(1,arg.octaves, arg.increment),arg.dissonances, linewidth=1.0, label = '%s harmonics\n%d Hz f_0\n%d partials' % (arg.name, arg.f_0, arg.numPartials))
         plt.legend()
     plt.axis([1,max(octavesMax),0,max(ymax)])
     plt.subplots_adjust(bottom=.2)
@@ -31,15 +32,3 @@ def disPlotMultiple(*args):
     leg.get_frame().set_alpha(0.5)
     plt.grid(True)
     plt.show()
-
-
-
-"""
-import Timbre
-foo = Timbre.Even()
-foo.disMeasure()
-bar = Timbre.Odd()
-bar.disMeasure()
-disPlotMultiple(foo, bar)
-
-"""

@@ -38,7 +38,7 @@ class Timbre(object):
         A2 = -5.75
         inc = self.increment # step increment for x values
         frequencies = self.freqs
-        amplitudes = self.amps
+        amplitudes = [abs(amp) for amp in self.amps]
         dissonances = [] # empty array for i loop
         x1 = zip(frequencies,amplitudes)
         for i in np.arange(1,self.octaves, inc):
@@ -87,7 +87,7 @@ class Timbre(object):
             
 
     def partialsPlot(self):
-        """Plots the partials and their relative amplitudes for the timbre being examined"""
+        """Plots the partials and their relative amplitudes for the timbre being examined. Positive Amplitudes in red, Negative amplitudes in blue."""
         wdth = self.f_0/4.0
         plt.bar(self.freqs,self.amps, width = wdth, color = 'r')
         for freq,amp in zip(self.freqs, self.amps):
@@ -163,12 +163,19 @@ class Timbre(object):
             leg.get_frame().set_alpha(0.75)
             plt.show()
 
-    def timbreGen(self, length = 5):
+    def timbreGen(self):
         """Generates audio data and a .wav file of a timbre. 
                * Default length 5 seconds. 
                * files in TimbreAudio in cwd
         """
         self.audioGenPath()
+        while True:
+            length = raw_input("Enter file length in seconds: ")
+            try:
+                length = (int(length))
+                break
+            except ValueError:
+                print "Value must be an integer"
         sampleInc = 1.0/44100
         # if hasattr(self, 'env'): # Used with fft.py
 #             length = len(self.env)/44100.0
@@ -191,12 +198,19 @@ class Timbre(object):
         print "File written to TimbreAudio folder"
 
 
-    def timbreSweep(self, length = 90):
+    def timbreSweep(self):
         """Generates audio data and a .wav file of a timbre swept against itself. One tone is held constant, the other ascends for just over 1 octave.
                * Default length 90 seconds. 
                * files in TimbreAudio in cwd
         """
         self.audioGenPath()
+        while True:
+            length = raw_input("Enter file length in seconds: ")
+            try:
+                length = (int(length))
+                break
+            except ValueError:
+                print "Value must be an integer"
         sampleInc = 1.0/44100
         f_Start, f_Stop = self.freqs, [2.2*f for f in self.freqs] # 2 arrays, one of initial and one of final partials 
         times = np.arange(0, length, sampleInc) # array of chosen length at 44.1 kHz sample rate
@@ -219,7 +233,7 @@ class Timbre(object):
 
 
 
-    def writeChord(self, verbose = False):  
+    def writeConsonantChord(self, verbose = False):  
         """
         Writes a chord with the selected half steps at the timbre's nearest consonant pitches. Prompts user for length and desired half steps.
         """
@@ -228,7 +242,6 @@ class Timbre(object):
         self.consFreqs()
         consRatios[1:] = self.consonances/self.f_0
         EqTemp_Ratios = [(2**(1./12))**x for x in range(13)] # array of EQ Temp ratios, duh
-        print "This timbre has %d consonances" % len(consRatios)
         mins = []
         for i in range(len(consRatios)): # for each consonant frequency
             tmp = []
@@ -246,19 +259,26 @@ class Timbre(object):
                 length = (int(length))
                 break
             except ValueError:
-                print "Must be an integer"
+                print "Value must be an integer"
 
         chordNotes = []
-
+        print "This timbre has %d consonances" % len(consRatios)
         while True:
-            noteChoice = raw_input("Consonant half steps are %s. Enter the values you want; Press Enter with no value when done: " % ', '.join([str(m) for m in mins]))
+            noteChoice = raw_input("Consonant half steps are %s. Enter the values you want; Press Enter twice when done: " % ', '.join([str(m) for m in mins]))
             try:
-                chordNotes.append(int(noteChoice))
+                noteChoiceInt = int(noteChoice) # will raise ValueError if noteChoice is '' or any string
+                if noteChoiceInt not in mins:
+                    raise InputError
+                chordNotes.append(noteChoiceInt)
             except ValueError:
-                if noteChoice != '':
+                if noteChoice != '': # noteChoice is not an int or ''
+                    print "Value must be an integer"
+                elif noteChoice == '' and not chordNotes:
                     print "Value must be an integer"
                 else:
                     break
+            except InputError:
+                print "Value must be in list"
         ########
         sampleInc = 1.0/44100
         x = np.arange(0,length, sampleInc)
@@ -272,12 +292,12 @@ class Timbre(object):
         wavData = np.asarray(wavData)
         wavData = wavData/mx
         wavData = np.asarray(32000*wavData, dtype = np.int16)
-        write('TimbreAudio/%dHzFund_%s_%sChord.wav' % (self.f_0, ''.join([str(note) for note in chordNotes]), self.harmonics), 44100.0, wavData)
+        write('TimbreAudio/%dHzFund_%s_%sConsonantChord.wav' % (self.f_0, '-'.join([str(note) for note in sorted(chordNotes)]), self.harmonics), 44100.0, wavData)
         self.consonances = []
         print "File written to TimbreAudio folder"
 
 
-    def write12TETChord(self): # , chordNotes = [0,4,7]
+    def writeEqTempChord(self): # , chordNotes = [0,4,7]
         """
         Writes an equal tempered chord with the selected half steps. Prompts user for length and desired half steps.
         """
@@ -292,11 +312,13 @@ class Timbre(object):
                 print "Must be an integer"
         chordNotes = []
         while True:
-            noteChoice = raw_input("Enter the half step values you want; Press Enter with no value when done: ")
+            noteChoice = raw_input("Enter the half step values you want; Press Enter twice when done: ")
             try:
                 chordNotes.append(int(noteChoice))
             except ValueError:
                 if noteChoice != '':
+                    print "Value must be an integer"
+                elif noteChoice == '' and not chordNotes:
                     print "Value must be an integer"
                 else:
                     break
@@ -312,7 +334,7 @@ class Timbre(object):
         wavData = np.asarray(wavData)
         wavData = wavData/mx
         wavData = np.asarray(32000*wavData, dtype = np.int16)
-        write('TimbreAudio/%dHzFund_%s_%s_EqTemp_Chord.wav' % (self.f_0, ''.join([str(note) for note in chordNotes]), self.harmonics), 44100.0, wavData)
+        write('TimbreAudio/%dHzFund_%s_%s_EqTemp_Chord.wav' % (self.f_0, '-'.join([str(note) for note in sorted(chordNotes)]), self.harmonics), 44100.0, wavData)
         print "File written to TimbreAudio folder"
         
         
@@ -356,7 +378,12 @@ class Timbre(object):
     #     wavData = np.asarray(32000*wavData, dtype = np.int16)
     #     write('TimbreAudio/%dHz_%dpartials_%s.wav' % (self.f_0, self.numPartials, self.harmonics ), 44100.0, wavData)
     #     print "File written to TimbreAudio folder"
+class Error(Exception):
+    pass
 
+class InputError(Error):
+    pass
+        
 
 if __name__ == '__main__':
     from generators import *
@@ -396,6 +423,8 @@ if __name__ == '__main__':
     # moo.consDisFreqs()
     # moo.timbreGen()
     # disPlotMultiple(foo, bar, baz, moo)
+
+
 
 
 
