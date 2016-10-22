@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Timbreexplorer by dougolson</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Timbreexplorer</h1>
+        <p>Python code to explore the relationship between musical timbre and dissonance</p>
+
+        <p class="view"><a href="https://github.com/dougolson/TimbreExplorer">View the Project on GitHub <small>dougolson/TimbreExplorer</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/dougolson/TimbreExplorer/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/dougolson/TimbreExplorer/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/dougolson/TimbreExplorer">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="timbre-explorer" class="anchor" href="#timbre-explorer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Timbre Explorer</h1>
+
+<p>The Timbre Explorer module creates Timbre objects for the investigation of the dissonance and consonance properties of musical timbres. The disMeasure() function is not mine - it is a Python translation of <a href="http://sethares.engr.wisc.edu/comprog.html">William Sethares’s matlab and C code</a>. I highly recommend reading his writings on the relationship between tuning and timbre. <a href="http://sethares.engr.wisc.edu/consemi.html">Try this</a> for starters. I have added functions to do plots of various kinds and to generate .wav files so you can hear the timbres and their dissonance / consonance patterns. Requires Matplotlib, Numpy and Scipy.</p>
+
+<div class="highlight highlight-source-python"><pre><span class="pl-k">import</span> Timbre
+<span class="pl-k">import</span> matplotlib.pyplot <span class="pl-k">as</span> plt</pre></div>
+
+<div class="highlight highlight-source-python"><pre><span class="pl-k">%</span>matplotlib inline
+plt.rcParams[<span class="pl-s"><span class="pl-pds">'</span>figure.figsize<span class="pl-pds">'</span></span>] <span class="pl-k">=</span> (<span class="pl-c1">10</span>, <span class="pl-c1">6</span>)</pre></div>
+
+<p>Typical usage, assuming you cd to the directory that contains the Timbre directory and run Python 2.7x from there:</p>
+
+<ul>
+<li>import Timbre</li>
+<li>foo = Timbre.Even()</li>
+<li>foo.disMeasure(octaves = 1) # perform the dissonance calculation</li>
+<li>foo.disPlot() # plot the dissonance curve for the timbre</li>
+<li>foo.ConsDisFreqs() # plot of the maximima and minima in the dissonance curve</li>
+<li>foo.partialsPlot() # bar plot of the relative amplitudes and frequencies for the partials of the timbre </li>
+<li>foo.wavePlot() # plot one period of the timbre's waveform</li>
+<li>foo.timbreGen() # Generate a 5 second sample of the timbre </li>
+<li>foo.timbreSweep(length = 60) # Generate a sweep of the timbre against itself</li>
+</ul>
+
+<p>Create some Timbre objects. Objects can be initialized as:</p>
+
+<ul>
+<li>Even (even partials)</li>
+<li>Odd (odd partials)</li>
+<li>Evenodd (even and odd partials etc.)</li>
+<li>Square </li>
+<li>Sawtooth</li>
+<li>Triangle</li>
+<li>Beam</li>
+<li>Custom</li>
+</ul>
+
+<div class="highlight highlight-source-python"><pre>even <span class="pl-k">=</span> Timbre.Even()
+odd <span class="pl-k">=</span> Timbre.Odd()
+beam <span class="pl-k">=</span> Timbre.Beam()</pre></div>
+
+<pre><code>Timbre successfully initialized with parameters of 220Hz, 7 partials, attenuation factor of 0.71
+
+Timbre successfully initialized with parameters of 220Hz, 7 partials, attenuation factor of 0.71
+
+Timbre successfully initialized with Beam partials
+</code></pre>
+
+<p>Make some plots:</p>
+
+<div class="highlight highlight-source-python"><pre>even.disPlot()</pre></div>
+
+<p><img src="images/output_9_0.png" alt="png"></p>
+
+<p>Note the flat third (interval 4) </p>
+
+<div class="highlight highlight-source-python"><pre>odd.disPlot()</pre></div>
+
+<p><img src="images/output_11_0.png" alt="png"></p>
+
+<div class="highlight highlight-source-python"><pre>beam.disPlot()</pre></div>
+
+<p><img src="images/output_12_0.png" alt="png"></p>
+
+<p>Note the stetched partials of the vibrating beam timbre, especially the sixth and octave</p>
+
+<div class="highlight highlight-source-python"><pre>Timbre.disPlotMultiple(even, odd, beam)</pre></div>
+
+<p><img src="images/output_14_0.png" alt="png"></p>
+
+<div class="highlight highlight-source-python"><pre>square <span class="pl-k">=</span> Timbre.Square(<span class="pl-v">n_partials</span> <span class="pl-k">=</span> <span class="pl-c1">25</span>)</pre></div>
+
+<pre><code>Timbre successfully initialized with parameters of 220Hz, 25 partials
+</code></pre>
+
+<div class="highlight highlight-source-python"><pre>square.wavePlot()</pre></div>
+
+<p><img src="images/output_16_0.png" alt="png"></p>
+
+<div class="highlight highlight-source-python"><pre>square.partialsPlot()</pre></div>
+
+<p><img src="images/output_17_0.png" alt="png"></p>
+
+<div class="highlight highlight-source-python"><pre>square.disMeasure()
+square.disPlot()</pre></div>
+
+<p><img src="images/output_18_0.png" alt="png"></p>
+
+<div class="highlight highlight-source-python"><pre></pre></div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/dougolson">dougolson</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
