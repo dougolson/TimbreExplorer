@@ -20,7 +20,7 @@ class Timbre(object):
         self.f_0 = f_0
         self.numPartials = numPartials
         self.dissonances = []
-        self.octaves = []
+        self.octaves = octaves
         self.normalizedDissonances = []
         self.width = 0
         self.consonances = []
@@ -87,7 +87,8 @@ class Timbre(object):
 
     def disPlot(self, normalized=True):
         """Plots relative dissonance at all intervals for a given tone"""
-        if not hasattr(self, 'normalizedDissonances'):
+        # if not hasattr(self, 'normalizedDissonances'):
+        if not self.normalizedDissonances:
             self.disMeasure()
         if normalized:
             plt.plot(np.arange(1, self.octaves, self.increment),
@@ -170,7 +171,7 @@ class Timbre(object):
         writeChord. Optionally plots a bar graph showing the peak dissonant and
         consonant frequencies for a given Timbre object.
         """
-        if not hasattr(self, 'normalizedDissonances'):
+        if not self.normalizedDissonances:
             self.disMeasure()
         x = np.asarray(self.normalizedDissonances)
         dis = argrelextrema(x, np.greater)
@@ -201,7 +202,7 @@ class Timbre(object):
         """Generates an array of consonant frequencies for a given Timbre.
         Optionally plots a bar graph showing the peak dissonant an consonant
         frequencies for a given Timbre object"""
-        if not hasattr(self, 'normalizedDissonances'):
+        if not self.normalizedDissonances:
             self.disMeasure()
         x = np.asarray(self.normalizedDissonances)
         con = argrelextrema(x, np.less)
@@ -351,8 +352,8 @@ wav' % (self.f_0, self.numPartials, self.harmonics), 44100.0, wavData)
         print "This timbre has %d consonances" % len(consRatios)
         while True:
             noteChoice = raw_input("Consonant half steps are %s. \
-            Enter the values you want; \
-            Press Enter twice when done: " % ', '.join([str(m) for m in mins]))
+Enter the values you want; \
+Press Enter twice when done: " % ', '.join([str(m) for m in mins]))
 
             try:
                 noteChoiceInt = int(noteChoice) # will raise ValueError if
