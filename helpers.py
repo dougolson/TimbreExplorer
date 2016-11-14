@@ -1,5 +1,5 @@
 """
-Hleper functoin for plot multiple items at once
+Helper function for plotting multiple items at once
 """
 
 # from Timbre.timbre import Timbre
